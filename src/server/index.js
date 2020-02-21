@@ -4,6 +4,8 @@ import helmet from "helmet"; // Helmet is a tool that allows you to set various 
 import cors from "cors";
 import compress from "compress";
 
+import services from "./services";
+
 const root = path.join(__dirname, "../..");
 const app = express();
 
@@ -35,3 +37,15 @@ app.get("/", (req, res) => {
 });
 
 app.listen(8000, () => console.log("listen on port 8000!"));
+
+function applyServices(services) {
+  const servicesName = Object.keys(services);
+  for (let i = 0; i < servicesName.length; i++) {
+    const name = servicesName[i];
+    if (name === "graphql") {
+      services[name].applyMiddleware({ app }); // Apollo automatically binds itself to the /graphql path because it is the default option. You could also include a path parameter if you want it to respond from a custom route.
+    } else {
+      app.use(`/${name}`, services[name]);
+    }
+  }
+}
