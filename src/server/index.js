@@ -2,7 +2,7 @@ import express from "express";
 import path from "path";
 import helmet from "helmet"; // Helmet is a tool that allows you to set various HTTP headers to secure your application.
 import cors from "cors";
-import compress from "compress";
+import compress from "compression";
 
 import services from "./services";
 
@@ -35,6 +35,8 @@ app.use("/uploads", express.static(path.join(root, "uploads"))); // All files an
 app.get("/", (req, res) => {
   res.sendFile(path.join(root, "/dist/client/index.html"));
 });
+
+applyServices(services);
 
 app.listen(8000, () => console.log("listen on port 8000!"));
 
