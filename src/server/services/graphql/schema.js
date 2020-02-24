@@ -33,7 +33,6 @@ const typeDefinitions = `
     username: String!
     avatar: String!
   }
-
 `;
 
 export default [typeDefinitions];
