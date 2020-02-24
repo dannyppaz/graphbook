@@ -22,7 +22,7 @@ const typeDefinitions = `
   }
 
   type RootMutation {
-    addPost(post: PostInput!, user: UserInput!): Post
+    addPost(post: PostInput!, user: UserInput!): [Post]
   }
 
   input PostInput {
@@ -33,7 +33,6 @@ const typeDefinitions = `
     username: String!
     avatar: String!
   }
-
 `;
 
 export default [typeDefinitions];
