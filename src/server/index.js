@@ -5,7 +5,7 @@ import cors from "cors";
 import compress from "compression";
 
 import database from "./database";
-import services from "./services";
+import servicesLoader from "./services";
 
 startServer();
 
@@ -13,6 +13,12 @@ async function startServer() {
   const root = path.join(__dirname, "../..");
   const app = express();
   const db = await database.createDB("db.json");
+
+  const utils = {
+    db
+  };
+
+  const services = servicesLoader(utils);
 
   /* the use function which runs a series of commands when a given path matches. When executing this function without a path, it is executed for every request. */
 
