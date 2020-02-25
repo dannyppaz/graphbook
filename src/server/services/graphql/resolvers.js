@@ -19,24 +19,45 @@ export const _posts = [
   }
 ];
 
-const resolvers = {
-  RootQuery: {
-    posts(root, args, context) {
-      return _posts;
-    }
-  },
-  RootMutation: {
-    addPost(root, { post, user }, context) {
-      const postObject = {
-        ...post,
-        user,
-        id: _posts.length + 1
-      };
-      _posts.push(postObject);
-      logger.log("info", "Post was created");
-      return _posts;
-    }
-  }
-};
+export default function resolver() {
+  const { db } = this;
+  const resolvers = {
+    RootQuery: {
+      posts(root, args, context) {
+        return db.get("posts").value();
+      }
+    },
+    Post: {
+      user(post, args, context) {
+        return db
+          .get("users")
+          .find({ username: post.user })
+          .value();
+      }
+    },
+    RootMutation: {
+      addPost(root, { post, user }, context) {
+        logger.log({
+          level: "info",
+          message: "Post was created"
+        });
 
-export default resolvers;
+        db.get("posts")
+          .push({
+            ...post,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            user: user.username
+          })
+          .write();
+        db.get("users")
+          .push(user)
+          .write();
+
+        return db.get("posts").value();
+      }
+    }
+  };
+
+  return resolvers;
+}

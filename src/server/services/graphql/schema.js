@@ -6,12 +6,13 @@ const typeDefinitions = `
     mutation: RootMutation
   }
 
+
   type RootQuery {
     posts: [Post]
   }
 
   type Post {
-    id: Int
+    id: String
     text: String
     user: User
   }

@@ -1,32 +1,40 @@
-import RxDB from "rxdb";
-import RxDBServerPlugin from "rxdb/plugins/server";
-import * as MemoryAdapter from "pouchdb-adapter-memory";
-import { postSchema } from "./../models";
-
-RxDB.plugin(RxDBServerPlugin);
-RxDB.plugin(MemoryAdapter);
+const low = require("lowdb");
+const lodashId = require("lodash-id");
+const FileAsync = require("lowdb/adapters/FileAsync");
 
 const db = {};
-db.create = createDB;
+db.createDB = createDB;
 
-async function createDB() {
-  const db = await RxDB.create({
-    name: "graphBookDB", // <- name
-    adapter: "memory", // <- storage-adapter
-    password: "123456", // <- password (optional)
-    multiInstance: true, // <- multiInstance (optional, default: true)
-    queryChangeDetection: false // <- queryChangeDetection (optional, default: false)
-  });
-
-  await db.collection({
-    name: "post",
-    schema: postSchema
-  });
-
-  await db.post.insert({
-    id: "1",
-    text: "Hello Post"
-  });
+async function createDB(filename) {
+  const adapter = new FileAsync(filename);
+  const db = await low(adapter);
+  db._.mixin(lodashId);
+  db.defaults({
+    posts: [
+      {
+        text: "Lorem ipsum 1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        user: "user1"
+      },
+      {
+        text: "Lorem ipsum 2",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        user: "user2"
+      }
+    ],
+    users: [
+      {
+        username: "user1",
+        avatar: "/uploads/avatar1.png"
+      },
+      {
+        username: "user2",
+        avatar: "/uploads/avatar2.png"
+      }
+    ]
+  }).write();
 
   return db;
 }

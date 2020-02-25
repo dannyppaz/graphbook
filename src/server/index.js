@@ -5,21 +5,20 @@ import cors from "cors";
 import compress from "compression";
 
 import database from "./database";
-import services from "./services";
+import servicesLoader from "./services";
 
 startServer();
 
 async function startServer() {
-  const db = await database.create();
+  const db = await database.createDB("db.json");
+
+  const utils = {
+    db
+  };
+  const services = servicesLoader(utils);
 
   const root = path.join(__dirname, "../..");
   const app = express();
-  const { appDB, server } = db.server({
-    path: "/db", // (optional)
-    port: 8000, // (optional)
-    cors: true, // (optional), enable CORS-headers
-    startServer: true // (optional), start express server
-  });
 
   /* the use function which runs a series of commands when a given path matches. When executing this function without a path, it is executed for every request. */
 
@@ -43,18 +42,17 @@ async function startServer() {
 
   app.use("/", express.static(path.join(root, "dist/client"))); // All files and folders in dist/client are served beginning with /
   app.use("/uploads", express.static(path.join(root, "uploads"))); // All files and folders in uploads are served beginning with uploads/
-  app.use("/db", appDB);
 
   app.get("/", (req, res) => {
     res.sendFile(path.join(root, "/dist/client/index.html"));
   });
 
-  applyServices(services);
+  applyServices(app, services);
 
   app.listen(8000, () => console.log("listen on port 8000!"));
 }
 
-function applyServices(services) {
+function applyServices(app, services) {
   const servicesName = Object.keys(services);
   for (let i = 0; i < servicesName.length; i++) {
     const name = servicesName[i];
