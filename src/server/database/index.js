@@ -1,22 +1,42 @@
 const low = require("lowdb");
+const lodashId = require("lodash-id");
 const FileAsync = require("lowdb/adapters/FileAsync");
 
-const lowDB = {};
-lowDB.createDB = createDB;
+const db = {};
+db.createDB = createDB;
 
 async function createDB(filename) {
   const adapter = new FileAsync(filename);
   const db = await low(adapter);
+  db._.mixin(lodashId);
   db.defaults({
     posts: [
       {
-        id: 1,
-        text: "this is the first post",
-        user: { avatar: null, username: "user1" }
+        text: "Lorem ipsum 1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        user: "user1"
+      },
+      {
+        text: "Lorem ipsum 2",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        user: "user2"
+      }
+    ],
+    users: [
+      {
+        username: "user1",
+        avatar: "/uploads/avatar1.png"
+      },
+      {
+        username: "user2",
+        avatar: "/uploads/avatar2.png"
       }
     ]
   }).write();
+
   return db;
 }
 
-export default lowDB;
+export default db;

@@ -6,7 +6,7 @@ import Schema from "./schema";
 export default utils => {
   const executableSchema = makeExecutableSchema({
     typeDefs: Schema,
-    resolvers: Resolvers.call(utils) // Set the owner object of Resolvers. Now, within the Resolvers function, accessing this now gives us the utils object.
+    resolvers: Resolvers.call(utils) // set the owner object of the exported Resolvers function. So, within the Resolvers function, accessing this now gives us the utils object.
   });
 
   const server = new ApolloServer({

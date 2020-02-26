@@ -28,16 +28,34 @@ export default function resolvers() {
         return db.get("posts").value();
       }
     },
+    Post: {
+      user(post, args, context) {
+        return db
+          .get("users")
+          .find({ username: post.user })
+          .value();
+      }
+    },
     RootMutation: {
       addPost(root, { post, user }, context) {
-        const postObject = {
-          ...post,
-          user,
-          id: _posts.length + 1
-        };
-        _posts.push(postObject);
-        logger.log("info", "Post was created");
-        return _posts;
+        logger.log({
+          level: "info",
+          message: "Post was created"
+        });
+
+        db.get("posts")
+          .push({
+            ...post,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            user: user.username
+          })
+          .write();
+        db.get("users")
+          .push(user)
+          .write();
+
+        return db.get("posts").value();
       }
     }
   };

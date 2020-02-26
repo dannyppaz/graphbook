@@ -21,6 +21,7 @@
     "graphql": "^14.6.0",
     "graphql-tools": "^4.0.7",
     "helmet": "^3.21.2",
+    "lodash-id": "^0.14.0",
     "lowdb": "^1.0.0",
     "nodemon": "^2.0.2",
     "react": "^16.12.0",
