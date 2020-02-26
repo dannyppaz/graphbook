@@ -1,5 +1,6 @@
 const low = require("lowdb");
 const lodashId = require("lodash-id");
+const shortid = require("shortid");
 const FileAsync = require("lowdb/adapters/FileAsync");
 
 const db = {};
@@ -12,12 +13,14 @@ async function createDB(filename) {
   db.defaults({
     posts: [
       {
+        id: shortid.generate(),
         text: "Lorem ipsum 1",
         createdAt: new Date(),
         updatedAt: new Date(),
         user: "user1"
       },
       {
+        id: shortid.generate(),
         text: "Lorem ipsum 2",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -26,17 +29,19 @@ async function createDB(filename) {
     ],
     users: [
       {
+        id: shortid.generate(),
         username: "user1",
         avatar: "/uploads/avatar1.png"
       },
       {
+        id: shortid.generate(),
         username: "user2",
         avatar: "/uploads/avatar2.png"
       }
     ],
     messages: [
       {
-        id: "message1",
+        id: shortid.generate(),
         text: "This is message 1",
         user: "user1",
         chat: "chat1"

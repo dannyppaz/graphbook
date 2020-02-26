@@ -1,23 +1,5 @@
 import logger from "../../helpers/logger";
-
-export const _posts = [
-  {
-    id: 2,
-    text: "Lorem ipsum",
-    user: {
-      avatar: "/uploads/avatar1.png",
-      username: "Test User"
-    }
-  },
-  {
-    id: 1,
-    text: "Lorem ipsum",
-    user: {
-      avatar: "/uploads/avatar2.png",
-      username: "Test User 2"
-    }
-  }
-];
+const shortid = require("shortid");
 
 export default function resolvers() {
   const { db } = this;
@@ -31,7 +13,6 @@ export default function resolvers() {
         return db.get("chats").value();
       },
       chat(root, { chatId }, context) {
-        console.log("LOGINFO: chats -> chatId", chatId);
         return db
           .get("chats")
           .find({ id: chatId })
@@ -81,8 +62,12 @@ export default function resolvers() {
           message: "Post was created"
         });
 
+        const postId = shortid.generate();
+        const userId = shortid.generate();
+
         db.get("posts")
           .push({
+            id: postId,
             ...post,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -90,10 +75,13 @@ export default function resolvers() {
           })
           .write();
         db.get("users")
-          .push(user)
+          .push({ id: userId, ...user })
           .write();
 
-        return { ...post, ...user };
+        return db
+          .get("posts")
+          .find({ id: postId })
+          .value();
       },
       addChat(root, { chat }, context) {
         logger.log({
@@ -103,6 +91,7 @@ export default function resolvers() {
 
         db.get("chats")
           .push({
+            id: shortid.generate(),
             users: [...chat.users]
           })
           .write();

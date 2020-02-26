@@ -33,6 +33,7 @@ const typeDefinitions = `
   }
 
   type User {
+    id: String
     avatar: String
     username: String
   }
