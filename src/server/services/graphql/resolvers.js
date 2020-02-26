@@ -26,6 +26,16 @@ export default function resolvers() {
     RootQuery: {
       posts(root, args, context) {
         return db.get("posts").value();
+      },
+      chats(root, args, context) {
+        return db.get("chats").value();
+      },
+      chat(root, { chatId }, context) {
+        console.log("LOGINFO: chats -> chatId", chatId);
+        return db
+          .get("chats")
+          .find({ id: chatId })
+          .value();
       }
     },
     Post: {
@@ -33,6 +43,34 @@ export default function resolvers() {
         return db
           .get("users")
           .find({ username: post.user })
+          .value();
+      }
+    },
+    Message: {
+      user(message, args, context) {
+        return db
+          .get("users")
+          .find({ username: message.user })
+          .value();
+      },
+      chat(message, args, context) {
+        return db
+          .get("chats")
+          .find(chat => chat.messages.include(message.id))
+          .value();
+      }
+    },
+    Chat: {
+      messages(chat, args, context) {
+        return db
+          .get("messages")
+          .filter({ chat: chat.id })
+          .value();
+      },
+      users(chat, args, context) {
+        return db
+          .get("users")
+          .filter(user => chat.users.includes(user.username))
           .value();
       }
     },
@@ -55,7 +93,41 @@ export default function resolvers() {
           .push(user)
           .write();
 
-        return db.get("posts").value();
+        return { ...post, ...user };
+      },
+      addChat(root, { chat }, context) {
+        logger.log({
+          level: "info",
+          message: "Message was created"
+        });
+
+        db.get("chats")
+          .push({
+            users: [...chat.users]
+          })
+          .write();
+        return chat;
+      },
+      addMessage(root, { message }, context) {
+        logger.log({
+          level: "info",
+          message: "Message was created"
+        });
+
+        // return User.findAll().then((users) => {
+        //   const usersRow = users[0];
+
+        //   return Message.create({
+        //     ...message,
+        //   }).then((newMessage) => {
+        //     return Promise.all([
+        //       newMessage.setUser(usersRow.id),
+        //       newMessage.setChat(message.chatId),
+        //     ]).then(() => {
+        //       return newMessage;
+        //     });
+        //   });
+        // });
       }
     }
   };

@@ -33,6 +33,21 @@ async function createDB(filename) {
         username: "user2",
         avatar: "/uploads/avatar2.png"
       }
+    ],
+    messages: [
+      {
+        id: "message1",
+        text: "This is message 1",
+        user: "user1",
+        chat: "chat1"
+      }
+    ],
+    chats: [
+      {
+        id: "chat1",
+        messages: ["message1"],
+        users: ["user1"]
+      }
     ]
   }).write();
 
