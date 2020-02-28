@@ -4,6 +4,7 @@ const typeDefinitions = `
   schema {
     query: RootQuery
     mutation: RootMutation
+    subscription: RootSubscription
   }
 
 
@@ -60,6 +61,10 @@ const typeDefinitions = `
   input MessageInput {
     text: String!
     chatId: Int!
+  }
+
+  type RootSubscription {
+    messageAdded: Message
   }
 `;
 

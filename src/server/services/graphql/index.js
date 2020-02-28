@@ -11,6 +11,8 @@ export default utils => {
 
   const server = new ApolloServer({
     schema: executableSchema,
+    playground: true,
+    introspection: true,
     context: ({ req }) => req
   });
 

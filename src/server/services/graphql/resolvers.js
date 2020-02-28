@@ -1,5 +1,7 @@
 import logger from "../../helpers/logger";
 const shortid = require("shortid");
+import { PubSub, withFilter } from "graphql-subscriptions";
+const pubsub = new PubSub();
 
 export default function resolvers() {
   const { db } = this;
@@ -117,6 +119,35 @@ export default function resolvers() {
         //     });
         //   });
         // });
+      }
+    },
+    RootSubscription: {
+      messageAdded: {
+        subscribe: withFilter(
+          () => pubsub.asyncIterator("messageAdded"),
+          (payload, variables, context) => {
+            if (payload.messageAdded.UserId != context.user.id) {
+              return Chat.findOne({
+                where: {
+                  id: payload.messageAdded.ChatId
+                },
+                include: [
+                  {
+                    model: User,
+                    required: true,
+                    through: { where: { userId: context.user.id } }
+                  }
+                ]
+              }).then(chat => {
+                if (chat !== null) {
+                  return true;
+                }
+                return false;
+              });
+            }
+            return false;
+          }
+        )
       }
     }
   };
