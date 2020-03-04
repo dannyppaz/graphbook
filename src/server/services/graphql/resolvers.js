@@ -55,6 +55,22 @@ export default function resolvers() {
           .get("users")
           .filter(user => chat.users.includes(user.username))
           .value();
+      },
+      lastMessage(chat, args, context) {
+        console.log(
+          db
+            .get("messages")
+            .filter(
+              message => message.id === chat.messages[chat.messages.length - 1]
+            )
+            .value()
+        );
+        return db
+          .get("messages")
+          .find(
+            message => message.id === chat.messages[chat.messages.length - 1]
+          )
+          .value();
       }
     },
     RootMutation: {

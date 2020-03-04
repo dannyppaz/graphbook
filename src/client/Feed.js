@@ -1,12 +1,12 @@
-import React, { useState, Fragment } from "react";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import gql from "graphql-tag";
-import { graphql, Query, Mutation } from "react-apollo";
+import React, { Fragment, useState } from "react";
 
 const GET_POSTS = gql`
   {
     posts {
-      id
       text
+      id
       user {
         avatar
         username
@@ -30,63 +30,79 @@ const ADD_POST = gql`
 
 export const Feed = () => {
   const [postContent, setPostContent] = useState("");
+  const { loading, error, data } = useQuery(GET_POSTS);
+  const [addPost] = useMutation(ADD_POST, {
+    update(cache, { data: { addPost } }) {
+      const { posts } = cache.readQuery({ query: GET_POSTS });
+      cache.writeQuery({
+        query: GET_POSTS,
+        data: { posts: posts.concat([addPost]) }
+      });
+    }
+  });
+
+  if (loading) return "...Loading";
+  if (error) return error.message;
+  if (!data) return null;
 
   const handlePostContentChange = event => {
     setPostContent(event.target.value);
   };
 
   return (
-    <Query query={GET_POSTS}>
-      {({ loading, error, data }) => {
-        if (loading) return "...Loading";
-        if (error) return error.message;
-
-        const { posts } = data;
-        return (
-          <Fragment>
-            <div className="postForm">
-              <Mutation mutation={ADD_POST}>
-                {addPost => (
-                  <form
-                    onSubmit={e => {
-                      e.preventDefault();
-                      addPost({
-                        variables: {
-                          post: { text: postContent },
-                          user: {
-                            username: "danny",
-                            avatar: "/uploads/avatar4.png"
-                          }
-                        }
-                      }).then(() => {
-                        setPostContent("");
-                      });
-                    }}
-                  >
-                    <textarea
-                      value={postContent}
-                      onChange={handlePostContentChange}
-                      placeholder="Write your custom post!"
-                    />
-                    <input type="submit" value="Submit" />
-                  </form>
-                )}
-              </Mutation>
+    <Fragment>
+      <div className="postForm" key="postForm">
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            addPost({
+              variables: {
+                post: { text: postContent },
+                user: {
+                  username: "danny",
+                  avatar: "/uploads/avatar4.png"
+                }
+              },
+              optimisticResponse: {
+                __typename: "Mutation",
+                addPost: {
+                  __typename: "Post",
+                  id: -1,
+                  text: postContent,
+                  user: {
+                    __typename: "User",
+                    username: "Loading ...",
+                    avatar: "/public/loading.gif"
+                  }
+                }
+              }
+            }).then(() => {
+              setPostContent("");
+            });
+          }}
+        >
+          <textarea
+            value={postContent}
+            onChange={handlePostContentChange}
+            placeholder="Write your custom post!"
+          />
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
+      <div className="feed" key="feed">
+        {data.posts.map((post, i) => (
+          <div
+            key={post.id}
+            className={"post " + (post.id < 0 ? "optimistic" : "")}
+          >
+            <div className="header">
+              <img src={post.user.avatar} />
+              <h2>{post.user.username}</h2>
             </div>
-            <div className="feed">
-              {posts.map((post, i) => (
-                <div key={post.id} className="post">
-                  <div className="header">
-                    <img src={post.user.avatar} />
-                    <h2>{post.user.username}</h2>
-                  </div>
-                  <p className="content">{post.text}</p>
-                </div>
-              ))}
-            </div>
-          </Fragment>
-        );
-      }}
-    </Query>
+            <p className="content">{post.text}</p>
+          </div>
+        ))}
+      </div>
+    </Fragment>
   );
 };

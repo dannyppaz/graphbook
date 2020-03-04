@@ -31,6 +31,7 @@ const typeDefinitions = `
     id: String
     messages: [Message]
     users: [User]
+    lastMessage: Message
   }
 
   type User {

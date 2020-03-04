@@ -2,6 +2,7 @@ import "../../assets/css/style.css";
 import React from "react";
 import { Helmet } from "react-helmet";
 import { Feed } from "./Feed";
+import { Chats } from "./Chats";
 
 export const App = () => {
   return (
@@ -18,6 +19,7 @@ export const App = () => {
         ></meta>
       </Helmet>
       <Feed />
+      <Chats />
     </div>
   );
 };
