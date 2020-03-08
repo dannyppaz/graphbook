@@ -1,18 +1,21 @@
 import { useMutation, useQuery } from "@apollo/react-hooks";
 import gql from "graphql-tag";
 import React, { Fragment, useState } from "react";
+import InfiniteScroll from "react-infinite-scroller";
 
 const GET_POSTS = gql`
-  {
+query postsFeed($page: Int, $limit: Int) {
+  postsFeed(page: $page, limit: $limit) {
     posts {
-      text
       id
+      text
       user {
         avatar
         username
       }
     }
   }
+})
 `;
 
 const ADD_POST = gql`
@@ -30,7 +33,9 @@ const ADD_POST = gql`
 
 export const Feed = () => {
   const [postContent, setPostContent] = useState("");
-  const { loading, error, data } = useQuery(GET_POSTS);
+  const { loading, error, data, fetchMore } = useQuery(GET_POSTS, {
+    variables: { page: 0, limit: 10 }
+  });
   const [addPost] = useMutation(ADD_POST, {
     update(cache, { data: { addPost } }) {
       const { posts } = cache.readQuery({ query: GET_POSTS });
@@ -44,6 +49,9 @@ export const Feed = () => {
   if (loading) return "...Loading";
   if (error) return error.message;
   if (!data) return null;
+
+  const { postsFeed } = data;
+  const { posts } = postsFeed;
 
   const handlePostContentChange = event => {
     setPostContent(event.target.value);
@@ -90,7 +98,7 @@ export const Feed = () => {
         </form>
       </div>
       <div className="feed" key="feed">
-        {data.posts.map((post, i) => (
+        {posts.map((post, i) => (
           <div
             key={post.id}
             className={"post " + (post.id < 0 ? "optimistic" : "")}

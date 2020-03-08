@@ -19,6 +19,19 @@ export default function resolvers() {
           .get("chats")
           .find({ id: chatId })
           .value();
+      },
+      postFeed(root, { page, limit }, context) {
+        var skip = 0;
+
+        if (page && limit) {
+          skip = page * limit;
+        }
+        return limit
+          ? db
+              .get("posts")
+              .slice(skip, limit)
+              .value()
+          : db.get("posts").slice(skip);
       }
     },
     Post: {
@@ -57,19 +70,11 @@ export default function resolvers() {
           .value();
       },
       lastMessage(chat, args, context) {
-        console.log(
-          db
-            .get("messages")
-            .filter(
-              message => message.id === chat.messages[chat.messages.length - 1]
-            )
-            .value()
-        );
         return db
           .get("messages")
-          .find(
-            message => message.id === chat.messages[chat.messages.length - 1]
-          )
+          .find(message => {
+            return message.id === chat.messages[chat.messages.length - 1];
+          })
           .value();
       }
     },
@@ -92,9 +97,14 @@ export default function resolvers() {
             user: user.username
           })
           .write();
-        db.get("users")
-          .push({ id: userId, ...user })
-          .write();
+        const currentUser = db
+          .get("users")
+          .find(user => user.username === "danny");
+        if (!currentUser) {
+          db.get("users")
+            .push({ id: userId, ...user })
+            .write();
+        }
 
         return db
           .get("posts")
@@ -121,20 +131,21 @@ export default function resolvers() {
           message: "Message was created"
         });
 
-        // return User.findAll().then((users) => {
-        //   const usersRow = users[0];
+        const chat = db
+          .get("chats")
+          .find(chat => chat.id === message.chatId)
+          .value();
+        const newMessage = {
+          id: shortid.generate(),
+          text: message.text,
+          chat: message.chatId,
+          user: "danny"
+        };
 
-        //   return Message.create({
-        //     ...message,
-        //   }).then((newMessage) => {
-        //     return Promise.all([
-        //       newMessage.setUser(usersRow.id),
-        //       newMessage.setChat(message.chatId),
-        //     ]).then(() => {
-        //       return newMessage;
-        //     });
-        //   });
-        // });
+        chat.messages.push(newMessage);
+        db.write();
+
+        return newMessage;
       }
     },
     RootSubscription: {

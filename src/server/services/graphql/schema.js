@@ -12,6 +12,7 @@ const typeDefinitions = `
     posts: [Post],
     chats: [Chat],
     chat(chatId: String): Chat
+    postFeed(page: Int, limit: Int): PostFeed
   }
 
   type Post {
@@ -20,10 +21,14 @@ const typeDefinitions = `
     user: User
   }
 
+  type PostFeed {
+    posts: [Post]
+  }
+
   type Message {
     id: String
     text: String
-    chat: Chat
+    chat: String
     user: User
   }
 
@@ -61,7 +66,7 @@ const typeDefinitions = `
 
   input MessageInput {
     text: String!
-    chatId: Int!
+    chatId: String!
   }
 
   type RootSubscription {
