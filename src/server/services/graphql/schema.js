@@ -12,7 +12,7 @@ const typeDefinitions = `
     posts: [Post],
     chats: [Chat],
     chat(chatId: String): Chat
-    postFeed(page: Int, limit: Int): PostFeed
+    postsFeed(page: Int, limit: Int): PostFeed
   }
 
   type Post {

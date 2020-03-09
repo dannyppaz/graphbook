@@ -4,18 +4,18 @@ import React, { Fragment, useState } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 
 const GET_POSTS = gql`
-query postsFeed($page: Int, $limit: Int) {
-  postsFeed(page: $page, limit: $limit) {
-    posts {
-      id
-      text
-      user {
-        avatar
-        username
+  query postsFeed($page: Int, $limit: Int) {
+    postsFeed(page: $page, limit: $limit) {
+      posts {
+        id
+        text
+        user {
+          avatar
+          username
+        }
       }
     }
   }
-})
 `;
 
 const ADD_POST = gql`
@@ -33,15 +33,20 @@ const ADD_POST = gql`
 
 export const Feed = () => {
   const [postContent, setPostContent] = useState("");
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(0);
   const { loading, error, data, fetchMore } = useQuery(GET_POSTS, {
     variables: { page: 0, limit: 10 }
   });
   const [addPost] = useMutation(ADD_POST, {
     update(cache, { data: { addPost } }) {
-      const { posts } = cache.readQuery({ query: GET_POSTS });
+      const variables = { page: 0, limit: 10 };
+      const data = cache.readQuery({ query: GET_POSTS, variables });
+      data.postsFeed.posts.unshift(addPost);
       cache.writeQuery({
         query: GET_POSTS,
-        data: { posts: posts.concat([addPost]) }
+        variables,
+        data
       });
     }
   });
@@ -55,6 +60,33 @@ export const Feed = () => {
 
   const handlePostContentChange = event => {
     setPostContent(event.target.value);
+  };
+
+  const loadMore = fetchMore => {
+    fetchMore({
+      variables: {
+        page: page + 1
+      },
+      updateQuery(previousResult, { fetchMoreResult }) {
+        if (!fetchMoreResult.postsFeed.posts.length) {
+          setHasMore(false);
+          return previousResult;
+        }
+
+        setPage(prevPage => prevPage + 1);
+
+        const newData = {
+          postsFeed: {
+            __typename: "PostFeed",
+            posts: [
+              ...previousResult.postsFeed.posts,
+              ...fetchMoreResult.postsFeed.posts
+            ]
+          }
+        };
+        return newData;
+      }
+    });
   };
 
   return (
@@ -98,18 +130,28 @@ export const Feed = () => {
         </form>
       </div>
       <div className="feed" key="feed">
-        {posts.map((post, i) => (
-          <div
-            key={post.id}
-            className={"post " + (post.id < 0 ? "optimistic" : "")}
-          >
-            <div className="header">
-              <img src={post.user.avatar} />
-              <h2>{post.user.username}</h2>
+        <InfiniteScroll
+          loadMore={() => loadMore(fetchMore)}
+          hasMore={hasMore}
+          loader={
+            <div className="loader" key={"loader"}>
+              Loading ...
             </div>
-            <p className="content">{post.text}</p>
-          </div>
-        ))}
+          }
+        >
+          {posts.map((post, i) => (
+            <div
+              key={post.id}
+              className={"post " + (post.id < 0 ? "optimistic" : "")}
+            >
+              <div className="header">
+                <img src={post.user.avatar} />
+                <h2>{post.user.username}</h2>
+              </div>
+              <p className="content">{post.text}</p>
+            </div>
+          ))}
+        </InfiniteScroll>
       </div>
     </Fragment>
   );

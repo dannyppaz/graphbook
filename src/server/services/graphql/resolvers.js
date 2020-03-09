@@ -20,18 +20,21 @@ export default function resolvers() {
           .find({ id: chatId })
           .value();
       },
-      postFeed(root, { page, limit }, context) {
+      postsFeed(root, { page, limit }, context) {
         var skip = 0;
 
         if (page && limit) {
           skip = page * limit;
         }
-        return limit
+
+        const _posts = limit
           ? db
               .get("posts")
               .slice(skip, limit)
               .value()
           : db.get("posts").slice(skip);
+
+        return { posts: _posts };
       }
     },
     Post: {
