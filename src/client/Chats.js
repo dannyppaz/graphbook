@@ -156,8 +156,13 @@ export const Chat = ({ id }) => {
     variables: { chatId: id }
   });
 
-  if (loading) return "...Loading";
-  if (error) return <p>ERROR: {error.message}</p>;
+  if (loading) return <Loading />;
+  if (error)
+    return (
+      <Error>
+        <p>{error.message}</p>
+      </Error>
+    );
   if (!data) return <p>Not found</p>;
 
   const { chat } = data;

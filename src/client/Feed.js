@@ -3,6 +3,9 @@ import gql from "graphql-tag";
 import React, { Fragment, useState } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 
+import Loading from "./components/loading";
+import { Post } from "./components/post";
+
 const GET_POSTS = gql`
   query postsFeed($page: Int, $limit: Int) {
     postsFeed(page: $page, limit: $limit) {
@@ -51,8 +54,13 @@ export const Feed = () => {
     }
   });
 
-  if (loading) return "...Loading";
-  if (error) return error.message;
+  if (loading) return <Loading />;
+  if (error)
+    return (
+      <Error>
+        <p>{error.message}</p>
+      </Error>
+    );
   if (!data) return null;
 
   const { postsFeed } = data;
@@ -140,16 +148,7 @@ export const Feed = () => {
           }
         >
           {posts.map((post, i) => (
-            <div
-              key={post.id}
-              className={"post " + (post.id < 0 ? "optimistic" : "")}
-            >
-              <div className="header">
-                <img src={post.user.avatar} />
-                <h2>{post.user.username}</h2>
-              </div>
-              <p className="content">{post.text}</p>
-            </div>
+            <Post key={post.id} post={post} />
           ))}
         </InfiniteScroll>
       </div>
