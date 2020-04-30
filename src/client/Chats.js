@@ -1,9 +1,10 @@
 import React, { Component, useState } from "react";
 import { useQuery, useMutation } from "react-apollo";
 import gql from "graphql-tag";
+import { Loading } from "./components/loading";
 
 const GET_CHATS = gql`
-  {
+  query chats {
     chats {
       id
       users {

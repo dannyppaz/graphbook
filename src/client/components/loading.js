@@ -1,6 +1,6 @@
 import React from "react";
 
-export default ({ color, size }) => {
+export const Loading = ({ color, size }) => {
   var style = {
     backgroundColor: "#6ca6fd",
     width: 40,

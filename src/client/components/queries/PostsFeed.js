@@ -1,25 +1,31 @@
-import { Fragment } from "react";
+import { useQuery } from "@apollo/react-hooks";
+import gql from "graphql-tag";
+import React, { Component } from "react";
 
-const GET_POSTS = gql`
-  query postsFeed($page: Int, $limit: Int) {
-    postsFeed(page: $page, limit: $limit) {
+import { Loading } from "../loading";
+import { Error } from "../error";
+
+export const GET_POSTS = gql`
+  query postsFeed($page: Int, $limit: Int, $username: String) {
+    postsFeed(page: $page, limit: $limit, username: $username) {
       posts {
         id
         text
         user {
-          avatar
+          id
           username
+          avatar
         }
       }
     }
   }
 `;
 
-export const PostsFeedQuery = ({ variables }) => {
+export const PostsFeedQuery = ({ variables, children }) => {
   const getVariables = () => {
     var query_variables = {
       page: 0,
-      limit: 10
+      limit: 10,
     };
 
     if (typeof variables !== typeof undefined) {
@@ -29,13 +35,16 @@ export const PostsFeedQuery = ({ variables }) => {
       if (typeof variables.limit !== typeof undefined) {
         query_variables.limit = variables.limit;
       }
+      if (typeof variables.username !== typeof undefined) {
+        query_variables.username = variables.username;
+      }
     }
 
     return query_variables;
   };
 
   const { loading, error, data, fetchMore } = useQuery(GET_POSTS, {
-    variables: getVariables()
+    variables: getVariables(),
   });
 
   if (loading) return <Loading />;
@@ -50,5 +59,7 @@ export const PostsFeedQuery = ({ variables }) => {
   const { postsFeed } = data;
   const { posts } = postsFeed;
 
-  return <Fragment>{render({ posts, fetchMore })}</Fragment>;
+  return React.Children.map(children, (child) =>
+    React.cloneElement(child, { posts, fetchMore })
+  );
 };

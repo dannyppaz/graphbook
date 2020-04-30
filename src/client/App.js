@@ -1,10 +1,34 @@
 import "../../assets/css/style.css";
-import React from "react";
-import { Helmet } from "react-helmet";
-import { Feed } from "./Feed";
-import { Chats } from "./Chats";
+import "./components/fontawesome";
+import "@synapsestudios/react-drop-n-crop/lib/react-drop-n-crop.min.css";
 
-export const App = () => {
+import React, { useEffect, useState } from "react";
+import { withApollo } from "react-apollo";
+import { Helmet } from "react-helmet";
+
+import { Routing } from "./router";
+
+const _App = ({ client }) => {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  const changeLoginState = (loggedIn) => {
+    setLoggedIn(loggedIn);
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwt");
+    if (token) {
+      setLoggedIn(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    client.onResetStore(() => changeLoginState(false));
+    return () => {
+      client.onResetStore();
+    };
+  }, []);
+
   return (
     <div className="container">
       <Helmet>
@@ -15,11 +39,24 @@ export const App = () => {
         ></meta>
         <meta
           http-equiv="Content-Security-Policy"
-          content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://cdnjs.cloudflare.com "
+          content="style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://cdnjs.cloudflare.com "
         ></meta>
       </Helmet>
-      <Feed />
-      <Chats />
+      {/* {loggedIn ? (
+        <UserProvider>
+          <Bar changeLoginState={changeLoginState} />
+          <Feed />
+          <Chats />
+        </UserProvider>
+      ) : (
+        <LoginRegisterForm changeLoginState={changeLoginState} />
+      )} */}
+
+      <UserProvider>
+        <Routing loggedIn={loggedIn} changeLoginState={changeLoginState} />
+      </UserProvider>
     </div>
   );
 };
+
+export const App = withApollo(_App);

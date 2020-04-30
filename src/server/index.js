@@ -13,7 +13,7 @@ async function startServer() {
   const db = await database.createDB("db.json");
 
   const utils = {
-    db
+    db,
   };
   const services = servicesLoader(utils);
 
@@ -34,8 +34,8 @@ async function startServer() {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "*.amazonaws.com"] // only images from these URLs should be loaded,
-      }
+        imgSrc: ["'self'", "data:", "*.amazonaws.com"], // only images from these URLs should be loaded,
+      },
     })
   );
   app.use(helmet.referrerPolicy({ policy: "same-origin" }));
@@ -49,7 +49,7 @@ async function startServer() {
 
   applyServices(app, services);
 
-  app.listen(8000, () => console.log("listen on port 8000!"));
+  app.listen(8000, () => console.info("listen on port 8000!"));
 }
 
 function applyServices(app, services) {

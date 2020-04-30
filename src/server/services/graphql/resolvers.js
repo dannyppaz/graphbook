@@ -1,6 +1,11 @@
 import logger from "../../helpers/logger";
 const shortid = require("shortid");
+import bcrypt from "bcrypt";
+import JWT from "jsonwebtoken";
 import { PubSub, withFilter } from "graphql-subscriptions";
+import { uploadStreamImage } from "../../helpers/image";
+
+const { JWT_SECRET } = process.env;
 const pubsub = new PubSub();
 
 export default function resolvers() {
@@ -15,12 +20,9 @@ export default function resolvers() {
         return db.get("chats").value();
       },
       chat(root, { chatId }, context) {
-        return db
-          .get("chats")
-          .find({ id: chatId })
-          .value();
+        return db.get("chats").find({ id: chatId }).value();
       },
-      postsFeed(root, { page, limit }, context) {
+      postsFeed(root, { page, limit, username }, context) {
         var skip = 0;
 
         if (page && limit) {
@@ -30,66 +32,94 @@ export default function resolvers() {
         const _posts = limit
           ? db
               .get("posts")
+              .filter((post) => post.user === username)
               .slice(skip, limit)
               .value()
-          : db.get("posts").slice(skip);
+          : db
+              .get("posts")
+              .filter((post) => post.user === username)
+              .slice(skip)
+              .value();
 
         return { posts: _posts };
-      }
+      },
+      usersSearch(root, { page, limit, text }, context) {
+        if (text.length < 3) {
+          return {
+            users: [],
+          };
+        }
+        let skip = 0;
+        if (page && limit) {
+          skip = page * limit;
+        }
+
+        const users = limit
+          ? db
+              .get("users")
+              .filter((user) => user.username.includes(text))
+              .slice(skip, limit)
+              .value()
+          : db
+              .get("posts")
+              .filter((user) => user.username.includes(text))
+              .slice(skip)
+              .value();
+
+        return { users };
+      },
+      currentUser(root, {}, context) {
+        return context.user;
+      },
+      user(root, { username }, context) {
+        return db.get("users").find({ username }).value();
+      },
     },
     Post: {
       user(post, args, context) {
-        return db
-          .get("users")
-          .find({ username: post.user })
-          .value();
-      }
+        return db.get("users").find({ username: post.user }).value();
+      },
     },
     Message: {
       user(message, args, context) {
-        return db
-          .get("users")
-          .find({ username: message.user })
-          .value();
+        return db.get("users").find({ username: message.user }).value();
       },
       chat(message, args, context) {
         return db
           .get("chats")
-          .find(chat => chat.messages.include(message.id))
+          .find((chat) => chat.messages.include(message.id))
           .value();
-      }
+      },
     },
     Chat: {
       messages(chat, args, context) {
-        return db
-          .get("messages")
-          .filter({ chat: chat.id })
-          .value();
+        return db.get("messages").filter({ chat: chat.id }).value();
       },
       users(chat, args, context) {
         return db
           .get("users")
-          .filter(user => chat.users.includes(user.username))
+          .filter((user) => chat.users.includes(user.username))
           .value();
       },
       lastMessage(chat, args, context) {
         return db
           .get("messages")
-          .find(message => {
+          .find((message) => {
             return message.id === chat.messages[chat.messages.length - 1];
           })
           .value();
-      }
+      },
     },
     RootMutation: {
-      addPost(root, { post, user }, context) {
+      addPost(root, { post }, context) {
         logger.log({
           level: "info",
-          message: "Post was created"
+          message: "Post was created",
         });
 
         const postId = shortid.generate();
-        const userId = shortid.generate();
+
+        const user = context.user;
 
         db.get("posts")
           .push({
@@ -97,33 +127,40 @@ export default function resolvers() {
             ...post,
             createdAt: new Date(),
             updatedAt: new Date(),
-            user: user.username
+            user: user.username,
           })
           .write();
-        const currentUser = db
-          .get("users")
-          .find(user => user.username === "danny");
-        if (!currentUser) {
-          db.get("users")
-            .push({ id: userId, ...user })
-            .write();
-        }
 
+        return db.get("posts").find({ id: postId }).value();
+      },
+      updatePost(root, { post, postId }, context) {
+        db.get("posts").find({ id: postId }).assign(post).write();
+        return db.get("posts").find({ id: postId }).value();
+        // const updatedPost = {...currentPost, ...post };
+      },
+      deletePost(root, { postId }, context) {
         return db
           .get("posts")
-          .find({ id: postId })
-          .value();
+          .remove({ id: postId })
+          .write()
+          .then((_) => ({
+            success: true,
+          }))
+          .catch((error) => ({
+            // FIXME: error handlers does not work here, check again !!!!
+            success: false,
+          }));
       },
       addChat(root, { chat }, context) {
         logger.log({
           level: "info",
-          message: "Message was created"
+          message: "Message was created",
         });
 
         db.get("chats")
           .push({
             id: shortid.generate(),
-            users: [...chat.users]
+            users: [...chat.users],
           })
           .write();
         return chat;
@@ -131,25 +168,94 @@ export default function resolvers() {
       addMessage(root, { message }, context) {
         logger.log({
           level: "info",
-          message: "Message was created"
+          message: "Message was created",
         });
 
         const chat = db
           .get("chats")
-          .find(chat => chat.id === message.chatId)
+          .find((chat) => chat.id === message.chatId)
           .value();
         const newMessage = {
           id: shortid.generate(),
           text: message.text,
           chat: message.chatId,
-          user: "danny"
+          user: "danny",
         };
 
         chat.messages.push(newMessage);
         db.write();
 
         return newMessage;
-      }
+      },
+      login: async (root, { email, password }, context) => {
+        const user = db
+          .get("users")
+          .find((user) => user.email === email)
+          .value();
+        if (!user) {
+          throw new Error("User not found");
+        }
+        const passWordValid = await bcrypt.compare(password, user.password);
+        if (!passWordValid) {
+          throw new Error("Password does not match");
+        }
+        const token = JWT.sign({ email, id: user.id }, JWT_SECRET, {
+          expiresIn: "1d",
+        });
+        return { token };
+      },
+      signup: async (root, { email, password, username }, args) => {
+        const existingUser = db
+          .get("users")
+          .find((user) => user.email === email || user.username === username)
+          .value();
+
+        if (existingUser) {
+          throw new Error("User already existed");
+        }
+        const hashPassword = await bcrypt.hash(password, 10);
+        const userId = shortid.generate();
+        await db
+          .get("users")
+          .push({
+            id: userId,
+            email,
+            username,
+            password: hashPassword,
+            activated: 1,
+          })
+          .write();
+
+        const token = JWT.sign({ email, id: userId }, JWT_SECRET, {
+          expiresIn: "1d",
+        });
+        return { token };
+      },
+      uploadAvatar: async (root, { file }, context) => {
+        /*
+        The Upload type contains these properties:
+        stream: The upload stream manages streaming the file(s) to a filesystem or any storage location of your choice. e.g. S3, Azure, Cloudinary, e.t.c.
+        filename: The name of the uploaded file(s).
+        mimetype: The MIME type of the file(s) such as text/plain, application/octet-stream, etc.
+        encoding: The file encoding such as UTF-8.
+        */
+
+        try {
+          const uploadAvatar = await uploadStreamImage(file);
+
+          const url = uploadAvatar.gcsUrl;
+          const filename = uploadAvatar.name;
+          const user = await db
+            .get("users")
+            .find({ id: context.user.id })
+            .value();
+          user.avatar = url;
+          await db.write();
+          return { filename, url };
+        } catch (error) {
+          console.error("ERROR WHILE UPLOADING AVATAR: ", error);
+        }
+      },
     },
     RootSubscription: {
       messageAdded: {
@@ -159,16 +265,16 @@ export default function resolvers() {
             if (payload.messageAdded.UserId != context.user.id) {
               return Chat.findOne({
                 where: {
-                  id: payload.messageAdded.ChatId
+                  id: payload.messageAdded.ChatId,
                 },
                 include: [
                   {
                     model: User,
                     required: true,
-                    through: { where: { userId: context.user.id } }
-                  }
-                ]
-              }).then(chat => {
+                    through: { where: { userId: context.user.id } },
+                  },
+                ],
+              }).then((chat) => {
                 if (chat !== null) {
                   return true;
                 }
@@ -177,9 +283,9 @@ export default function resolvers() {
             }
             return false;
           }
-        )
-      }
-    }
+        ),
+      },
+    },
   };
 
   return resolvers;

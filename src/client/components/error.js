@@ -1,5 +1,5 @@
-import React, { Component } from "react";
+import React from "react";
 
-export const Error = children => {
+export const Error = ({ children }) => {
   return <div className="error message">{children}</div>;
 };
