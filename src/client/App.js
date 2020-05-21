@@ -5,8 +5,8 @@ import "@synapsestudios/react-drop-n-crop/lib/react-drop-n-crop.min.css";
 import React, { useEffect, useState } from "react";
 import { withApollo } from "react-apollo";
 import { Helmet } from "react-helmet";
-
 import { Routing } from "./router";
+import { UserProvider } from "./context/user";
 
 const _App = ({ client }) => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -51,10 +51,7 @@ const _App = ({ client }) => {
       ) : (
         <LoginRegisterForm changeLoginState={changeLoginState} />
       )} */}
-
-      <UserProvider>
-        <Routing loggedIn={loggedIn} changeLoginState={changeLoginState} />
-      </UserProvider>
+      <Routing loggedIn={loggedIn} changeLoginState={changeLoginState} />
     </div>
   );
 };

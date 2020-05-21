@@ -1,16 +1,24 @@
-import React, { Component } from "react";
-import { LoginRegisterForm } from "./components/Loginregister";
-import {
-  BrowserRouter as Router,
-  Route,
-  Redirect,
-  Switch,
-} from "react-router-dom";
+import React from "react";
+
+const ReactRouter = require("react-router-dom");
+let Router;
+if (typeof window !== typeof undefined) {
+  const { BrowserRouter } = ReactRouter;
+  Router = BrowserRouter;
+} else {
+  // If we are in SSR.
+  const { StaticRouter } = ReactRouter;
+  Router = StaticRouter;
+  /* with the StaticRouter, we are in a stateless environment, where we render all routes with a fixed location. The StaticRouter does not allow for the location to be changed by redirects, since no user interaction can happen when using server-side rendering. */
+}
+const { Route, Redirect, Switch } = ReactRouter;
+
+import { LoginRegisterForm } from "./components/LoginRegister";
 import { Main } from "./Main";
 import { User } from "./User";
 
-export const Routing = ({ loggedIn, changeLoginState }) => (
-  <Router>
+export const Routing = ({ loggedIn, changeLoginState, location, context }) => (
+  <Router context={context} location={location}>
     <Switch>
       <PrivateRoute
         path="/app"
