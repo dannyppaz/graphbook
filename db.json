@@ -1,0 +1,204 @@
+{
+  "posts": [
+    {
+      "id": "Wv5E1OP8",
+      "text": "Lorem ipsum 1",
+      "createdAt": "2020-02-27T03:45:57.302Z",
+      "updatedAt": "2020-02-27T03:45:57.302Z",
+      "user": "user1"
+    },
+    {
+      "id": "vmsKqxqV1",
+      "text": "Lorem ipsum 2",
+      "createdAt": "2020-02-27T03:45:57.303Z",
+      "updatedAt": "2020-02-27T03:45:57.303Z",
+      "user": "user2"
+    },
+    {
+      "id": "9hwLWk1g",
+      "text": "You just added a wall.",
+      "createdAt": "2020-02-27T03:49:50.042Z",
+      "updatedAt": "2020-02-27T03:49:50.042Z",
+      "user": "user4"
+    },
+    {
+      "id": "lVs-vNci",
+      "text": "You just added a wall.",
+      "createdAt": "2020-02-27T04:00:26.476Z",
+      "updatedAt": "2020-02-27T04:00:26.476Z",
+      "user": "user4"
+    },
+    {
+      "id": "jDsrL1rc",
+      "text": "hello post",
+      "createdAt": "2020-02-27T14:05:34.171Z",
+      "updatedAt": "2020-02-27T14:05:34.171Z",
+      "user": "danny"
+    },
+    {
+      "id": "iCVjo1cs",
+      "text": "hi",
+      "createdAt": "2020-03-08T09:35:27.044Z",
+      "updatedAt": "2020-03-08T09:35:27.044Z",
+      "user": "danny"
+    },
+    {
+      "id": "t-lvtRcg",
+      "text": "bla bla bkla",
+      "createdAt": "2020-03-08T15:10:57.759Z",
+      "updatedAt": "2020-03-08T15:10:57.759Z",
+      "user": "danny"
+    },
+    {
+      "id": "flVHBdrQ",
+      "text": "holalal",
+      "createdAt": "2020-03-08T15:15:51.609Z",
+      "updatedAt": "2020-03-08T15:15:51.609Z",
+      "user": "danny"
+    },
+    {
+      "id": "1Gffdb9O",
+      "text": "c",
+      "createdAt": "2020-03-09T14:54:21.512Z",
+      "updatedAt": "2020-03-09T14:54:21.512Z",
+      "user": "danny"
+    },
+    {
+      "id": "-jLZ8ha7",
+      "text": "",
+      "createdAt": "2020-03-09T15:43:08.021Z",
+      "updatedAt": "2020-03-09T15:43:08.021Z",
+      "user": "danny"
+    }
+  ],
+  "users": [
+    {
+      "id": "coKKHsb0c",
+      "username": "user1",
+      "avatar": "/uploads/avatar1.png"
+    },
+    {
+      "id": "RlW5AggDa",
+      "username": "user2",
+      "avatar": "/uploads/avatar2.png"
+    },
+    {
+      "id": "nqafecH4I",
+      "username": "user4",
+      "avatar": "/uploads/avatar4.png"
+    },
+    {
+      "id": "ythLZgdnW",
+      "username": "user4",
+      "avatar": "/uploads/avatar4.png"
+    },
+    {
+      "id": "VsJxIZ485",
+      "username": "danny",
+      "avatar": "/uploads/avatar4.png"
+    }
+  ],
+  "messages": [
+    {
+      "id": "s3FVjkj_t",
+      "text": "i am message 1",
+      "user": "user1",
+      "chat": "chat1"
+    }
+  ],
+  "chats": [
+    {
+      "id": "chat1",
+      "messages": [
+        "s3FVjkj_t",
+        {
+          "id": "PKIlAFl-",
+          "text": "kkk;;;",
+          "chat": "chat1",
+          "user": null
+        },
+        {
+          "id": "-VAHvGru",
+          "text": "kkk",
+          "chat": "chat1",
+          "user": null
+        },
+        {
+          "id": "aV9VDd2V",
+          "text": "hiuhikuhu",
+          "chat": "chat1",
+          "user": null
+        },
+        {
+          "id": "7VFX84XM",
+          "text": "hjugjhgvhj",
+          "chat": "chat1",
+          "user": null
+        },
+        {
+          "id": "jFuKOu20",
+          "text": "hello",
+          "chat": "chat1",
+          "user": null
+        },
+        {
+          "id": "jP5bCbdr",
+          "text": "holla",
+          "chat": "chat1",
+          "user": "danny"
+        },
+        {
+          "id": "YyAh7Q0_",
+          "text": "how are you",
+          "chat": "chat1",
+          "user": "danny"
+        },
+        {
+          "id": "Cnb7aMTS",
+          "text": "hel",
+          "chat": "chat1",
+          "user": "danny"
+        },
+        {
+          "id": "dB54xPIQ",
+          "text": "he",
+          "chat": "chat1",
+          "user": "danny"
+        },
+        {
+          "id": "1QBZS0Fb",
+          "text": "hi",
+          "chat": "chat1",
+          "user": "danny"
+        },
+        {
+          "id": "qMgCnGza",
+          "text": "ho",
+          "chat": "chat1",
+          "user": "danny"
+        },
+        {
+          "id": "4itQz1iN",
+          "text": "hello",
+          "chat": "chat1",
+          "user": "danny"
+        },
+        {
+          "id": "x7DPAUzv",
+          "text": "hi",
+          "chat": "chat1",
+          "user": "danny"
+        },
+        {
+          "id": "Id2Xo9OW",
+          "text": "hoho",
+          "chat": "chat1",
+          "user": "danny"
+        }
+      ],
+      "users": [
+        "user1"
+      ]
+    }
+  ]
+}
