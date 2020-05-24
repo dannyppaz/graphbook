@@ -3,12 +3,14 @@ import path from "path";
 import helmet from "helmet"; // Helmet is a tool that allows you to set various HTTP headers to secure your application.
 import cors from "cors";
 import compress from "compression";
-
+import { Helmet } from "react-helmet";
 import ApolloClient from "./ssr/apollo";
 import database from "./database";
 import servicesLoader from "./services";
+import React from "react";
 import ReactDOM from "react-dom/server";
 import { ServerClient as Graphbook } from "./ssr/";
+import template from "./ssr/template";
 
 startServer();
 
@@ -67,9 +69,10 @@ async function startServer() {
       <Graphbook client={client} location={req.url} context={context} />
     );
     const content = ReactDOM.renderToString(App);
+    const head = Helmet.renderStatic();
 
     res.status(200);
-    res.send(`<!doctype html>`);
+    res.send(`<!doctype html>\n${template(content, head)}`);
     res.end();
   });
 
