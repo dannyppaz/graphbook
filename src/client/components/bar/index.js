@@ -4,6 +4,7 @@ import { UserConsumer } from "../../context/user";
 import { UserBar } from "./user";
 import { Logout } from "./logout";
 import { Home } from "./home";
+import { LogoutMutation } from "../mutations/Logout";
 
 export const Bar = ({ changeLoginState }) => {
   return (
@@ -16,7 +17,9 @@ export const Bar = ({ changeLoginState }) => {
       </div>
       <div className="buttons">
         <Home />
-        <Logout changeLoginState={changeLoginState} />
+        <LogoutMutation>
+          <Logout changeLoginState={changeLoginState} />
+        </LogoutMutation>
       </div>
     </div>
   );

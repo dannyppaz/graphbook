@@ -16,13 +16,6 @@ const _App = ({ client }) => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("jwt");
-    if (token) {
-      setLoggedIn(true);
-    }
-  }, []);
-
-  useEffect(() => {
     client.onResetStore(() => changeLoginState(false));
     return () => {
       client.onResetStore();
@@ -42,15 +35,7 @@ const _App = ({ client }) => {
           content="style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://cdnjs.cloudflare.com "
         ></meta>
       </Helmet>
-      {/* {loggedIn ? (
-        <UserProvider>
-          <Bar changeLoginState={changeLoginState} />
-          <Feed />
-          <Chats />
-        </UserProvider>
-      ) : (
-        <LoginRegisterForm changeLoginState={changeLoginState} />
-      )} */}
+
       <Routing loggedIn={loggedIn} changeLoginState={changeLoginState} />
     </div>
   );

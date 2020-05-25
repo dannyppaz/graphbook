@@ -76,10 +76,24 @@ async function startServer() {
   applyServices(app, services);
 
   app.get("*", async (req, res) => {
+    const token = req.cookies.get("authorization", { signed: true });
+    let loggedIn;
+    try {
+      await JWT.verify(token, JWT_SECRET);
+      loggedIn = true;
+    } catch (e) {
+      loggedIn = false;
+    }
+
     const client = ApolloClient(req);
     const context = {};
     const App = (
-      <Graphbook client={client} location={req.url} context={context} />
+      <Graphbook
+        client={client}
+        loggedIn={loggedIn}
+        location={req.url}
+        context={context}
+      />
     );
     const content = ReactDOM.renderToString(App);
     console.log("context is ===== ", context);

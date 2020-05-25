@@ -4,8 +4,8 @@ import { withApollo } from "react-apollo";
 import "../../client/components/fontawesome";
 import { Routing } from "../../client/router";
 
-const _App = ({ location, context }) => {
-  const [loggedIn, setLoggedIn] = useState(false);
+const _App = ({ location, loggedIn: loggedInProp, context }) => {
+  const [loggedIn, setLoggedIn] = useState(loggedInProp);
   const changeLoginState = (loggedIn) => {
     setLoggedIn(loggedIn);
   };

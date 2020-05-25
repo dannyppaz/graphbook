@@ -199,12 +199,26 @@ export default function resolvers() {
         if (!passWordValid) {
           throw new Error("Password does not match");
         }
+
         const token = JWT.sign({ email, id: user.id }, JWT_SECRET, {
           expiresIn: "1d",
         });
+
+        const cookieExpiration = 1;
+        var expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + cookieExpiration);
+
+        context.cookies.set("authorization", token, {
+          signed: true,
+          expires: expirationDate,
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict",
+        });
+
         return { token };
       },
-      signup: async (root, { email, password, username }, args) => {
+      signup: async (root, { email, password, username }, context) => {
         const existingUser = db
           .get("users")
           .find((user) => user.email === email || user.username === username)
@@ -229,7 +243,32 @@ export default function resolvers() {
         const token = JWT.sign({ email, id: userId }, JWT_SECRET, {
           expiresIn: "1d",
         });
+
+        const cookieExpiration = 1;
+        var expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + cookieExpiration);
+
+        context.cookies.set("authorization", token, {
+          signed: true,
+          expires: expirationDate,
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict",
+        });
+
         return { token };
+      },
+      logout(root, params, context) {
+        context.cookies.set("authorization", "", {
+          signed: true,
+          expires: new Date(),
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict",
+        });
+        return {
+          message: true,
+        };
       },
       uploadAvatar: async (root, { file }, context) => {
         /*

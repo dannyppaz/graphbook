@@ -68,6 +68,7 @@ const typeDefinitions = `
     login(email: String!, password: String!): Auth
     signup(username: String!, email: String!, password: String!): Auth
     uploadAvatar(file: Upload!): File @auth
+    logout: Response @auth
   }
 
   input PostInput {
