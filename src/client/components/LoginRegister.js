@@ -7,7 +7,7 @@ const LoginForm = ({ login, error }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const submit = event => {
+  const submit = (event) => {
     event.preventDefault();
     login({ variables: { email, password } });
   };
@@ -16,11 +16,11 @@ const LoginForm = ({ login, error }) => {
     <div className="login">
       <form onSubmit={submit}>
         <label>Email</label>
-        <input type="text" onChange={event => setEmail(event.target.value)} />
+        <input type="text" onChange={(event) => setEmail(event.target.value)} />
         <label>Password</label>
         <input
           type="password"
-          onChange={event => setPassword(event.target.value)}
+          onChange={(event) => setPassword(event.target.value)}
         />
         <input type="submit" value="Login" />
       </form>
@@ -38,7 +38,7 @@ const RegisterForm = ({ signup, error }) => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
 
-  const submit = event => {
+  const submit = (event) => {
     event.preventDefault();
     signup({ variables: { email, password, username } });
   };
@@ -47,16 +47,16 @@ const RegisterForm = ({ signup, error }) => {
     <div className="login">
       <form onSubmit={submit}>
         <label>Email</label>
-        <input type="text" onChange={event => setEmail(event.target.value)} />
+        <input type="text" onChange={(event) => setEmail(event.target.value)} />
         <label>Username</label>
         <input
           type="text"
-          onChange={event => setUsername(event.target.value)}
+          onChange={(event) => setUsername(event.target.value)}
         />
         <label>Password</label>
         <input
           type="password"
-          onChange={event => setPassword(event.target.value)}
+          onChange={(event) => setPassword(event.target.value)}
         />
         <input type="submit" value="Sign up" />
       </form>

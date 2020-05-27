@@ -85,7 +85,7 @@ async function startServer() {
       loggedIn = false;
     }
 
-    const client = ApolloClient(req);
+    const client = ApolloClient(req, loggedIn);
     const context = {};
     const App = (
       <Graphbook
@@ -105,6 +105,7 @@ async function startServer() {
       res.send(`<!doctype html>\n${template(content, head)}`);
       res.end();
     }
+    return;
   });
 
   app.listen(8000, () => console.info("listen on port 8000!"));

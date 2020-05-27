@@ -83,6 +83,4 @@ const LoginRoute = ({ component: Component, ...rest }) => (
   />
 );
 
-const NotFound = () => {
-  <Redirect to="/" />;
-};
+const NotFound = () => <Redirect to="/" />;
