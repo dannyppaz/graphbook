@@ -5,10 +5,13 @@ import helmet from "helmet";
 import path from "path";
 import React from "react";
 import ReactDOM from "react-dom/server";
+const expressPlayground = require("graphql-playground-middleware-express")
+  .default;
 import { Helmet } from "react-helmet";
 import Cookies from "cookies";
 import JWT from "jsonwebtoken";
 const { JWT_SECRET } = process.env;
+import { renderToStringWithData } from "react-apollo";
 
 import database from "./database";
 import servicesLoader from "./services";
@@ -75,6 +78,8 @@ async function startServer() {
 
   applyServices(app, services);
 
+  app.get("/playground", expressPlayground({ endpoint: "/graphql" }));
+
   app.get("*", async (req, res) => {
     const token = req.cookies.get("authorization", { signed: true });
     let loggedIn;
@@ -95,17 +100,18 @@ async function startServer() {
         context={context}
       />
     );
-    const content = ReactDOM.renderToString(App);
-    console.log("context is ===== ", context);
-    if (context.url) {
-      res.redirect(301, context.url);
-    } else {
-      const head = Helmet.renderStatic();
-      res.status(200);
-      res.send(`<!doctype html>\n${template(content, head)}`);
-      res.end();
-    }
-    return;
+
+    renderToStringWithData(App).then((content) => {
+      if (context.url) {
+        res.redirect(301, context.url);
+      } else {
+        const head = Helmet.renderStatic();
+        const initialState = client.extract();
+        res.status(200);
+        res.send(`<!doctype html>\n${template(content, head, initialState)}`);
+        res.end();
+      }
+    });
   });
 
   app.listen(8000, () => console.info("listen on port 8000!"));

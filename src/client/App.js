@@ -9,7 +9,12 @@ import { Routing } from "./router";
 import { UserProvider } from "./context/user";
 
 const _App = ({ client }) => {
-  const [loggedIn, setLoggedIn] = useState(false);
+  console.log("render the app component");
+  const [loggedIn, setLoggedIn] = useState(
+    typeof window.__APOLLO_STATE__ !== typeof undefined &&
+      typeof window.__APOLLO_STATE__.ROOT_QUERY !== typeof undefined &&
+      typeof window.__APOLLO_STATE__.ROOT_QUERY.currentUser !== typeof undefined
+  );
 
   const changeLoginState = (loggedIn) => {
     setLoggedIn(loggedIn);

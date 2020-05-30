@@ -6,6 +6,7 @@ import { Routing } from "../../client/router";
 
 const _App = ({ location, loggedIn: loggedInProp, context }) => {
   const [loggedIn, setLoggedIn] = useState(loggedInProp);
+  console.log("render app server component");
   const changeLoginState = (loggedIn) => {
     setLoggedIn(loggedIn);
   };

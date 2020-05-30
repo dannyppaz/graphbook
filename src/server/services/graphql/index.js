@@ -21,13 +21,14 @@ export default (utils) => {
     playground: true,
     introspection: true,
     context: ({ req }) => {
-      const authorization = req.headers.authorization;
-
+      const authorization =
+        req.headers.authorization || req.cookies.authorization;
+      console.log("LOGINFO: authorization", authorization);
       if (authorization) {
         var search = "Bearer";
         var regEx = new RegExp(search, "ig");
         const token = authorization.replace(regEx, "").trim();
-        return JWT.verify(token, JWT_SECRET, async (err, result) => {
+        JWT.verify(token, JWT_SECRET, async (err, result) => {
           if (err) {
             return req;
           } else {
@@ -40,6 +41,8 @@ export default (utils) => {
           }
         });
       }
+
+      return req;
     },
   });
 

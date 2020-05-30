@@ -4,9 +4,10 @@ import { onError } from "apollo-link-error";
 import { ApolloLink } from "apollo-link";
 import { HttpLink } from "apollo-link-http";
 import fetch from "node-fetch";
-import { renderToStringWithData } from "react-apollo";
 
 export default (req, loggedIn) => {
+  const apolloState =
+    typeof window !== "undefined" && window && window.__APOLLO_STATE__;
   const AuthLink = (operation, next) => {
     if (loggedIn) {
       operation.setContext((context) => ({
@@ -21,12 +22,15 @@ export default (req, loggedIn) => {
   };
   const client = new ApolloClient({
     ssrMode: true,
+    credentials: "include",
     link: ApolloLink.from([
       onError(({ graphQLErrors, networkError }) => {
         if (graphQLErrors) {
           graphQLErrors.map(({ message, locations, path, extensions }) => {
-            console.log(`[GraphQL error]: Message: ${message},
-            Location: ${locations}, Path: ${path}`);
+            for (const [key, value] in Object.entries(locations)) {
+              console.log(`[GraphQL error]: Message: ${message},
+            Location: ${key}, ${value}, Path: ${path}`);
+            }
           });
           if (networkError) {
             console.log(`[Network error]: ${networkError}`);
@@ -40,7 +44,8 @@ export default (req, loggedIn) => {
         fetch,
       }),
     ]),
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache().restore(apolloState),
   });
+
   return client;
 };

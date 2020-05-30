@@ -192,10 +192,12 @@ export default function resolvers() {
           .get("users")
           .find((user) => user.email === email)
           .value();
+
         if (!user) {
           throw new Error("User not found");
         }
         const passWordValid = await bcrypt.compare(password, user.password);
+
         if (!passWordValid) {
           throw new Error("Password does not match");
         }
@@ -203,6 +205,7 @@ export default function resolvers() {
         const token = JWT.sign({ email, id: user.id }, JWT_SECRET, {
           expiresIn: "1d",
         });
+        console.log("LOGINFO: token", token);
 
         const cookieExpiration = 1;
         var expirationDate = new Date();
@@ -215,7 +218,6 @@ export default function resolvers() {
           secure: false,
           sameSite: "strict",
         });
-
         return { token };
       },
       signup: async (root, { email, password, username }, context) => {
